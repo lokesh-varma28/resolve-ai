@@ -4,15 +4,15 @@
   "rewrites": [
     {
       "source": "/support/(.*)",
-      "destination": "https://resolve-ai-backend.onrender.com/support/$1"
+      "destination": "/api/index.py"
     },
     {
       "source": "/health",
-      "destination": "https://resolve-ai-backend.onrender.com/health"
+      "destination": "/api/index.py"
     },
     {
       "source": "/service-info",
-      "destination": "https://resolve-ai-backend.onrender.com/"
+      "destination": "/api/index.py"
     },
     {
       "source": "/(.*)",
