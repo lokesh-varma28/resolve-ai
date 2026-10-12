@@ -1,0 +1,23 @@
+services:
+  # Backend API Service
+  - type: web
+    name: resolve-ai-backend
+    env: python
+    region: oregon
+    plan: free
+    rootDir: ai-service
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: EXECUTION_MODE
+        value: llm_with_fallback
+      - key: LLM_PROVIDER
+        value: gemini
+      - key: GEMINI_MODEL
+        value: gemini-2.5-flash
+      - key: GEMINI_API_KEY
+        sync: false
