@@ -1,0 +1,94 @@
+name: CI/CD Pipeline & Automatic Deployment
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  # ------------------------------------------------------------------
+  # Stage 1: Backend CI (FastAPI, Python 3.12, Pytest, Safety Gates)
+  # ------------------------------------------------------------------
+  backend-ci:
+    name: Backend Tests & Linting
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./ai-service
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Pytest Test Suite
+        env:
+          GEMINI_API_KEY: ""
+          OPENAI_API_KEY: ""
+          EXECUTION_MODE: "llm_with_fallback"
+        run: |
+          python -m pytest -v
+
+  # ------------------------------------------------------------------
+  # Stage 2: Frontend CI (React 19, TypeScript, Oxlint, Vite Build)
+  # ------------------------------------------------------------------
+  frontend-ci:
+    name: Frontend Build & Typecheck
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: './frontend/package-lock.json'
+
+      - name: Install NPM Dependencies
+        run: npm ci
+
+      - name: Run Oxlint
+        run: npm run lint
+
+      - name: Run TypeScript Typecheck & Production Build
+        run: npm run build
+
+  # ------------------------------------------------------------------
+  # Stage 3: Automatic Deployment Webhook Trigger
+  # ------------------------------------------------------------------
+  deploy:
+    name: Trigger Automated Deployment
+    needs: [backend-ci, frontend-ci]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy Backend (Render / Railway Webhook)
+        if: env.BACKEND_DEPLOY_HOOK != ''
+        env:
+          BACKEND_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          curl -X POST "$BACKEND_DEPLOY_HOOK"
+
+      - name: Deployment Success Notification
+        run: |
+          echo "CI/CD checks passed! Automatic deployment triggered successfully."

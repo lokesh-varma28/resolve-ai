@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/support/(.*)",
+      "destination": "https://YOUR-BACKEND-API-URL.onrender.com/support/$1"
+    },
+    {
+      "source": "/health",
+      "destination": "https://YOUR-BACKEND-API-URL.onrender.com/health"
+    },
+    {
+      "source": "/service-info",
+      "destination": "https://YOUR-BACKEND-API-URL.onrender.com/"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
