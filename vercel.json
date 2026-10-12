@@ -1,0 +1,22 @@
+{
+  "buildCommand": "cd frontend && npm install && npm run build",
+  "outputDirectory": "frontend/dist",
+  "rewrites": [
+    {
+      "source": "/support/(.*)",
+      "destination": "https://resolve-ai-backend.onrender.com/support/$1"
+    },
+    {
+      "source": "/health",
+      "destination": "https://resolve-ai-backend.onrender.com/health"
+    },
+    {
+      "source": "/service-info",
+      "destination": "https://resolve-ai-backend.onrender.com/"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
